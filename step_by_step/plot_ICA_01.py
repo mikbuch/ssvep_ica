@@ -56,5 +56,5 @@ components = ica.components_
 #
 # Plot data
 #
-coords = load_coords('../example_data/coords_128_Biosemi.txt').T[:2].T
+coords = load_coords('../example_data/128_Biosemi_coords.txt').T[:2].T
 visualize(components[:4], coords)
