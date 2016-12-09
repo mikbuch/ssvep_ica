@@ -24,8 +24,8 @@ def get_ch_names(filepath):
 
     return ch_names
 
-def create_MNE_Raw(data_filepath, var_name, ch_names_filepath, sfreq,
-                   delimiter_data=',', dbg=False):
+def create_MNE_Raw(data_filepath, var_name, ch_names_filepath, ch_pos_filepath,
+                   sfreq, delimiter_data=',', dbg=False):
     """
     Based on: http://stackoverflow.com/a/38634620
     """
@@ -49,14 +49,22 @@ def create_MNE_Raw(data_filepath, var_name, ch_names_filepath, sfreq,
     '''
     ch_types = 'eeg'
 
-    # Read montage.
-    coords = load_coords('../example_data/128_Biosemi_coords.txt')
-
     montage = mne.channels.read_montage('biosemi128')
-    montage.pos = coords
+    import ipdb
+    ipdb.set_trace()
 
     # Create the info structure needed by MNE
-    info = mne.create_info(ch_names, sfreq, ch_types, montage)
+    info = mne.create_info(montage.ch_names, sfreq, ch_types, montage)
+
+    # Read montage.
+    # 3D montage ==> 2D montage
+    # https://gist.github.com/wmvanvliet/6d7c78ea329d4e9e1217
+    #  info = mne.create_info(ch_names, sfreq, ch_types, montage)
+    layout = mne.channels.make_eeg_layout(info)
+
+    montage.pos = layout.pos
+    #  info = mne.create_info(ch_names, sfreq, ch_types, montage)
+    info = mne.create_info(montage.ch_names, sfreq, ch_types, montage)
 
     # Finally, create the Raw object
     raw = mne.io.RawArray(data, info)
