@@ -1,0 +1,80 @@
+###############################################################################
+###############################################################################
+###############################################################################
+
+in mne/viz/topomap.py:
+
+line about 68th
+[...]
+        if len(picks) == 0:
+            raise ValueError("No channels of type %r" % ch_type)
+
+        if layout is None:
+            '''
+            Add this condition
+            =>=>=>=>=>=>=>=>=>=>=>=>=>=>=>
+            =>=>=>=>=>=>=>=>=>=>=>=>=>=>=>
+            =>=>=>=>=>=>=>=>=>=>=>=>=>=>=>
+            '''
+*           if 'layout' in info.keys():
+*               layout = info['layout']
+*           else:
+*               pos = _find_topomap_coords(info, picks)
+            '''
+            <=<=<=<=<=<=<=<=<=<=<=<=<=<=<=
+            <=<=<=<=<=<=<=<=<=<=<=<=<=<=<=
+            <=<=<=<=<=<=<=<=<=<=<=<=<=<=<=
+            '''
+        else:
+            names = [n.upper() for n in layout.names]
+            pos = list()
+[...]
+
+line about 551th
+You have to specify positions of the electrodes you are using. I haven't found
+way to pass these to the plot_topomap function which is strange.
+But after explicit specification it works.
+[...]
+    elif pos.shape[1] == 1 or pos.shape[1] > 4:
+        raise ValueError(pos_help)
+
+    pos = pos[[7, 8, 9, 14, 15, 16, 20, 21, 22, 27, 28, 29, 36, 37, 38]]
+    if len(data) != len(pos):
+        raise ValueError("Data and pos need to be of same length. Got data of "
+                         "length %s, pos of length %s" % (len(data), len(pos)))
+
+[...]
+
+line about 760th
+[...]
+    axes.set_title('IC #%03d' % idx, fontsize=12)
+    vmin_, vmax_ = _setup_vmin_vmax(data, vmin, vmax)
+*   pos = pos[data_picks]
+    im = plot_topomap(data.ravel(), pos, vmin=vmin_, vmax=vmax_,
+[...]
+
+
+###############################################################################
+###############################################################################
+###############################################################################
+add with create_info
+
+in mne/io/meas_info.py
+
+line about 1408
+[...]
+def create_info(ch_names, sfreq, ch_types=None, montage=None, layout=None):
+[...]
+
+
+line about 1494
+[...]
+                raise TypeError('Montage must be an instance of Montage, '
+                                'DigMontage, a list of montages, or filepath, '
+                                'not %s.' % type(montage))
+    if layout is not None:
+        info['layout'] = layout
+
+    info._check_consistency()
+    return info
+[...]

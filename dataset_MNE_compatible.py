@@ -17,8 +17,8 @@ def load_coords(filepath, delimiter=',', scale_0_1=True):
 
     return coords
 
-def create_MNE_Raw(data_filepath, var_name, kind, sfreq,
-                   delimiter_data=',', dbg=False):
+def create_MNE_Raw(data_filepath, var_name, kind,
+                   sfreq, delimiter_data=',', dbg=False):
     """
     Based on: http://stackoverflow.com/a/38634620
     """
@@ -50,12 +50,13 @@ def create_MNE_Raw(data_filepath, var_name, kind, sfreq,
     #  info = mne.create_info(ch_names, sfreq, ch_types, montage)
     layout = mne.channels.make_eeg_layout(info)
     layout.pos = layout.pos[:-3]
-    montage.ch_names = montage.ch_names[:-3]
 
     # Update pos to 2D scheme.
     montage.pos = layout.pos
+    # Remove last 3 electrodes.
+    montage.ch_names = montage.ch_names[:-3]
 
-    info = mne.create_info(montage.ch_names, sfreq, ch_types, montage, layout)
+    info = mne.create_info(montage.ch_names, sfreq, ch_types, montage)
 
     # Finally, create the Raw object
     raw = mne.io.RawArray(data, info)
@@ -64,4 +65,4 @@ def create_MNE_Raw(data_filepath, var_name, kind, sfreq,
         # Plot it.
         raw.plot()
 
-    return raw
+    return raw, layout
